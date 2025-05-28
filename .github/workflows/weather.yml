@@ -18,7 +18,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.11'  # ✅ Use a valid modern version
+          python-version: '3.11'
 
       - name: Install dependencies
         run: |
@@ -29,4 +29,3 @@ jobs:
         env:
           WEATHER_API_KEY: ${{ secrets.WEATHER_API_KEY }}
         run: python test_api.py
-
