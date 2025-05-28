@@ -1,0 +1,27 @@
+name: Weather API Insecure Workflow
+
+on:
+  push:
+    paths:
+      - .github/workflows/hardcoded-api.yml
+
+jobs:
+  run-weather-api-insecure:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+
+      - name: Run API test using hardcoded key
+        env:
+          WEATHER_API_KEY: a89c2f3c4e2c417696081ee401503871
+        run: python test_api.py
