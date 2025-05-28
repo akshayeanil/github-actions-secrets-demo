@@ -1,30 +1,37 @@
-from flask import Flask, request
-import requests
 import os
+import requests
+from flask import Flask, jsonify
 
 app = Flask(__name__)
 
 @app.route("/")
 def home():
-    return '''
-        <form action="/weather" method="get">
-            <input name="city" placeholder="Enter city name" required>
-            <button type="submit">Get Weather</button>
-        </form>
-    '''
+    return "Welcome to the Weather API Flask App!"
 
-@app.route("/weather")
-def weather():
-    city = request.args.get("city")
-    api_key = os.getenv("WEATHER_API_KEY")
+@app.route("/weather/<city>")
+def get_weather(city):
+    api_key = os.environ.get("WEATHER_API_KEY")
+    if not api_key:
+        return jsonify({"error": "API key not found in environment variable"}), 500
 
-    response = requests.get(f"https://api.openweathermap.org/data/2.5/weather?q={city}&appid={api_key}&units=metric")
-    
-    if response.status_code != 200:
-        return f"Error: {response.json().get('message')}"
+    url = f"http://api.openweathermap.org/data/2.5/weather?q={city}&appid={api_key}&units=metric"
+    response = requests.get(url)
 
-    data = response.json()
-    return f"Weather in {city}: {data['main']['temp']}°C, {data['weather'][0]['description']}"
+    if response.status_code == 200:
+        data = response.json()
+        temp = data["main"]["temp"]
+        weather_desc = data["weather"][0]["description"]
+        return jsonify({
+            "city": city,
+            "temperature_celsius": temp,
+            "description": weather_desc
+        })
+    else:
+        return jsonify({
+            "error": "Failed to fetch weather data",
+            "details": response.json()
+        }), response.status_code
 
 if __name__ == "__main__":
+    # Run Flask app in debug mode (remove debug=True in production)
     app.run(debug=True)
